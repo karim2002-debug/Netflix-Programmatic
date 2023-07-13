@@ -8,7 +8,7 @@
 import UIKit
 
 protocol CollectionTableViewCellDelegete {
-    func CollectionTableViewCellDidTabed(_ cell : CollectionTableViewCell , viewModel : TitlePreviewViewModel)
+    func CollectionTableViewCellDidTabed(_ cell : CollectionTableViewCell , title : Title , viewModel : TitlePreviewViewModel)
 }
 
 class CollectionTableViewCell: UITableViewCell {
@@ -107,7 +107,7 @@ extension CollectionTableViewCell : UICollectionViewDelegate , UICollectionViewD
                     return
                 }
                 
-                self?.delegete?.CollectionTableViewCellDidTabed(strongSelf, viewModel: titlePreviewViewModel)
+                self?.delegete?.CollectionTableViewCellDidTabed(strongSelf, title: title, viewModel: titlePreviewViewModel)
             case .failure(let error):
                 print(error)
             }

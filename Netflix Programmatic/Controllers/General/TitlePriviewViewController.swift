@@ -11,9 +11,10 @@ import WebKit
 
 class TitlePriviewViewController: UIViewController {
 
-    
+    var titleItem : TitleItem?
+    var fromDownloadViewController : Bool?
+    public var titles : Title?
     private let titleLabel : UILabel = {
-        
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.tintColor = .label
@@ -23,7 +24,6 @@ class TitlePriviewViewController: UIViewController {
     
     
     private let overviewLabel : UILabel = {
-        
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 18, weight: .regular)
@@ -33,7 +33,6 @@ class TitlePriviewViewController: UIViewController {
     }()
     
     private let downLoadButton : UIButton = {
-        
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.backgroundColor = .red
@@ -45,7 +44,6 @@ class TitlePriviewViewController: UIViewController {
     }()
     
     private let webKit : WKWebView = {
-        
         let webKit = WKWebView()
         webKit.translatesAutoresizingMaskIntoConstraints = false
         return webKit
@@ -61,8 +59,51 @@ class TitlePriviewViewController: UIViewController {
         view.addSubview(overviewLabel)
         view.addSubview(downLoadButton)
         applyConstrains()
+        
+        downLoadButton.addTarget(self, action: #selector(didTapedDownlaodButton), for: .touchUpInside)
+        
+        if fromDownloadViewController == true{
+            downLoadButton.setTitle("Delete", for: .normal)
+            downLoadButton.addTarget(self, action: #selector(didTapedDeleteFromDownload), for: .touchUpInside)
+        }
     }
     
+    @objc func didTapedDeleteFromDownload(){
+        guard let titleItem = titleItem else{
+            return
+        }
+        DataPersistenceManger.shared.deleteTitleWith(model: titleItem) { result in
+            switch result{
+            case .success():
+                NotificationCenter.default.post(name: NSNotification.Name("DeletedFromDownloaded"), object: nil)
+                print("Deleted From DataBase")
+            case .failure(let error):
+                print(error)
+            }
+        }
+        
+    }
+    
+    @objc func didTapedDownlaodButton(){
+    
+        guard let title = titles else{
+            return
+        }
+        
+        
+        DataPersistenceManger.shared.downloadTitlewith(model: title) { result in
+            switch result{
+            case .success():
+                
+                NotificationCenter.default.post(name: NSNotification.Name("DownloadedFromPerviewViewConteroller"), object: nil)
+               
+                print("add to dataBase")
+            case .failure(let error):
+                print(error)
+            }
+        }
+        
+    }
     
     private func applyConstrains(){
         

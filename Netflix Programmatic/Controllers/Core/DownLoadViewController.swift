@@ -9,7 +9,7 @@ import UIKit
 
 class DownLoadViewController: UIViewController {
 
-    
+  
     private var titleItem : [TitleItem] = [TitleItem]()
     
     private let downloadTableView : UITableView = {
@@ -31,18 +31,32 @@ class DownLoadViewController: UIViewController {
         downloadTableView.delegate = self
         downloadTableView.dataSource = self
         fetchData()
+        fetchNotifactionCenter()
+      
+    }
+    
+    private func fetchNotifactionCenter(){
         
         NotificationCenter.default.addObserver(forName: NSNotification.Name("Downloaded"), object: nil, queue: nil) { _ in
             self.fetchData()
         }
+        
+        NotificationCenter.default.addObserver(forName: NSNotification.Name("downloadedFromDownloadButton"), object: nil, queue: nil) { _ in
+            self.fetchData()
+        }
+        NotificationCenter.default.addObserver(forName: NSNotification.Name("DownloadedFromPerviewViewConteroller"), object: nil, queue: nil) { _ in
+            self.fetchData()
+        }
+        
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        
+
         downloadTableView.frame = view.bounds
     }
  
+    
     private func fetchData(){
         DataPersistenceManger.shared.fetchingDataFromDatabase {[weak self]result in
             switch result{
@@ -106,18 +120,17 @@ extension DownLoadViewController : UITableViewDelegate , UITableViewDataSource{
         
         let title = titleItem[indexPath.row]
         let vc = TitlePriviewViewController()
-        
         APICaller.shared.getMovie(query: title.original_title!) { result in
             switch result{
             case .success(let videoELement):
                 let titlePreviewModel = TitlePreviewViewModel(title: title.original_title!, youtubeView: videoELement, titleOverview: title.overview!)
                 vc.configure(with: titlePreviewModel)
+                vc.fromDownloadViewController = true
+                vc.titleItem = self.titleItem[indexPath.row]
                 self.navigationController?.pushViewController(vc, animated: true)
             case .failure(let error):
                 print(error)
             }
-        }
-        
-       
+        }  
     }
 }

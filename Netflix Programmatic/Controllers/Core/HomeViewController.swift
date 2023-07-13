@@ -54,7 +54,7 @@ class HomeViewController: UIViewController {
         configureHeroHeader()
         
         headerView?.playButton.addTarget(self, action: #selector(didTapedPlayButton), for: .touchUpInside)
-        
+        headerView?.downloadButton.addTarget(self, action: #selector(didTapedDownloadButton), for: .touchUpInside)
     }
     @objc func didTapedPlayButton(){
         
@@ -73,8 +73,18 @@ class HomeViewController: UIViewController {
                 
             }
         }
+    }
+    
+    @objc func didTapedDownloadButton(){
         
-        
+        DataPersistenceManger.shared.downloadTitlewith(model: randomTrendingMovie!) { result in
+            switch result{
+            case .success():
+                NotificationCenter.default.post(name: NSNotification.Name("downloadedFromDownloadButton"), object: nil)
+            case .failure(let error):
+                print(error)
+            }
+        }
         
     }
     private func configureHeroHeader(){
@@ -205,10 +215,13 @@ extension HomeViewController : UITableViewDelegate , UITableViewDataSource{
 }
 
 extension  HomeViewController : CollectionTableViewCellDelegete{
-    func CollectionTableViewCellDidTabed(_ cell: CollectionTableViewCell, viewModel: TitlePreviewViewModel) {
+  
+    
+    func CollectionTableViewCellDidTabed(_ cell: CollectionTableViewCell, title: Title, viewModel: TitlePreviewViewModel) {
         DispatchQueue.main.async { [weak self] in
             let vc = TitlePriviewViewController()
             vc.configure(with: viewModel)
+            vc.titles = title
             self?.navigationController?.pushViewController(vc, animated: true)
             
         }

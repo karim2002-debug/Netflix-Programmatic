@@ -24,7 +24,7 @@ class HeroHeaderUIView: UIView {
     }()
     
     
-    private let downloadButton : UIButton = {
+    public let downloadButton : UIButton = {
         
         let button = UIButton(type: .custom)
         button.translatesAutoresizingMaskIntoConstraints = false
